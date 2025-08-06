@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alerts Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #003366;
+      color: white;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .hamburger {
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .navbar-right i {
+      margin-left: 20px;
+      cursor: pointer;
+    }
+
+    .breadcrumb {
+      padding: 10px 20px;
+      background: #e6e6e6;
+      font-size: 14px;
+    }
+
+    .stop-alarm {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #ffe0e0;
+      color: #b30000;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      margin: 15px 20px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filters input,
+    .filters select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      min-width: 150px;
+    }
+
+    .filters button {
+      padding: 8px 14px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .filters button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .pagination select {
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .pagination .arrows {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0 10px;
+      user-select: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 60px;
+      left: -200px;
+      width: 200px;
+      height: 100%;
+      background-color: #003366;
+      color: white;
+      padding-top: 20px;
+      transition: left 0.3s;
+      z-index: 10;
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .sidebar a:hover {
+      background-color: #005999;
+    }
+
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-left">
+      <div class="hamburger" onclick="toggleSidebar()">☰</div>
+      <div class="title">Sites Monitoring Portal</div>
+    </div>
+    <div class="navbar-right">
+      <i>🔊</i>
+      <i>❗</i>
+      <i>👤</i>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar">
+    <a href="index.html">📊 Dashboard</a>
+    <a href="devices-data.html">📍 Devices</a>
+    <a href="alerts.html">🚨 Alerts</a>
+  </div>
+
+  <div class="breadcrumb">Home > Alerts</div>
+
+  <div class="stop-alarm">
+    <span>🛑 Stop Alarm</span>
+    <span id="alarm-icon" onclick="toggleAlarm()">🔊</span>
+  </div>
+
+  <div class="container">
+    <h2>Alerts</h2>
+
+    <div class="filters">
+      <label>Type:
+        <select id="typeFilter">
+          <option value="">All</option>
+          <option value="radius">Radius</option>
+          <option value="wind">Wind</option>
+        </select>
+      </label>
+      <label>From:
+        <input type="date" id="fromDate" />
+      </label>
+      <label>To:
+        <input type="date" id="toDate" />
+      </label>
+      <button onclick="filterAlerts()">Search</button>
+    </div>
+
+    <table id="alertsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Device Name</th>
+          <th>Type</th>
+          <th>Created At</th>
+          <th>Acknowledge</th>
+          <th>Acknowledge At</th>
+        </tr>
+      </thead>
+      <tbody id="alertData">
+        <!-- JavaScript will insert rows -->
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <div>
+        Rows per page:
+        <select>
+          <option>100</option>
+          <option>50</option>
+          <option>25</option>
+        </select>
+      </div>
+      <span>1–100 of 383 <span class="arrows">&lt;</span><span class="arrows">&gt;</span></span>
+    </div>
+  </div>
+
+<script>
+  // Sidebar toggle function
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.querySelector('.hamburger');
+    sidebar.classList.toggle('show');
+    hamburger.textContent = sidebar.classList.contains('show') ? '✖' : '☰';
+  }
+
+  // Alarm toggle function
+  function toggleAlarm() {
+    const icon = document.getElementById("alarm-icon");
+    icon.textContent = icon.textContent === "🔊" ? "🔇" : "🔊";
+  }
+
+  // Alert data and functions
+  const alertDataset = [
+    { id: '02s6ufOX4DnjQuFuNF85', device: 'TD 4', type: 'radius', created: '2025-08-02T00:03:00', ack: false, ackAt: '' },
+    { id: '03PtSXnXVHW4jILncaJn', device: 'TD 3', type: 'radius', created: '2025-07-03T00:29:00', ack: false, ackAt: '' },
+    { id: '0HexVOwIzrxcRmbY6jKq', device: 'DT 6', type: 'wind', created: '2025-07-02T23:43:00', ack: false, ackAt: '' },
+    { id: '0hoHYSxvllJUMwGzCADR', device: 'TD 5', type: 'radius', created: '2025-08-03T00:19:00', ack: false, ackAt: '' },
+    { id: '0I2tV27uNePv5BFuJjZE', device: 'asdddddd', type: 'radius', created: '2025-08-03T01:15:00', ack: false, ackAt: '' },
+    { id: '0KSUvrr4OzoVC44baJfd', device: 'TD 5', type: 'radius', created: '2025-07-04T00:44:00', ack: false, ackAt: '' },
+    { id: '0yWVsLMBo6T93177paEp', device: 'TD 2', type: 'radius', created: '2025-08-03T01:00:00', ack: false, ackAt: '' },
+    { id: '1ExmhZI9BmxSHTIEJYOj', device: 'TD 5', type: 'radius', created: '2025-08-02T23:48:00', ack: false, ackAt: '' },
+    { id: '1i1cKnu2877SWGEKaI86', device: 'TD 5', type: 'wind', created: '2025-08-03T00:29:00', ack: false, ackAt: '' },
+    { id: '1NiQ2y5vktIZWeSvhTRn', device: 'TD 5', type: 'radius', created: '2025-08-03T00:49:00', ack: false, ackAt: '' },
+    { id: '1RABSkoT8Z3U7FxgrBoO', device: 'DT 6', type: 'wind', created: '2025-08-03T00:39:00', ack: false, ackAt: '' },
+    { id: '1KJdsdKJ23djh982KJD', device: 'TD 9', type: 'wind', created: '2025-08-03T00:51:00', ack: false, ackAt: '' },
+    { id: '1AKD9823jKHdskKJH29', device: 'TD 10', type: 'radius', created: '2025-08-03T01:10:00', ack: false, ackAt: '' }
+  ];
+
+  function formatDateTime(dt) {
+    const date = new Date(dt);
+    return date.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('alertData');
+    tbody.innerHTML = "";
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.id.substring(0, 8)}...</td>
+        <td>${row.device}</td>
+        <td>${row.type.charAt(0).toUpperCase() + row.type.slice(1)}</td>
+        <td>${formatDateTime(row.created)}</td>
+        <td>${row.ack ? 'Yes' : 'No'}</td>
+        <td>${row.ackAt ? formatDateTime(row.ackAt) : '-'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filterAlerts() {
+    const type = document.getElementById('typeFilter').value;
+    const from = document.getElementById('fromDate').value;
+    const to = document.getElementById('toDate').value;
+
+    const filtered = alertDataset.filter(item => {
+      const createdDate = new Date(item.created).toISOString().split('T')[0];
+      const typeMatch = type ? item.type === type : true;
+      const fromMatch = from ? createdDate >= from : true;
+      const toMatch = to ? createdDate <= to : true;
+      return typeMatch && fromMatch && toMatch;
+    });
+
+    renderTable(filtered);
+    
+    // Update pagination info
+    const paginationInfo = document.querySelector('.pagination span');
+    if (filtered.length > 0) {
+      paginationInfo.textContent = `1–${filtered.length} of ${filtered.length}`;
+    } else {
+      paginationInfo.textContent = '0 results';
+    }
+  }
+
+  // Initial render
+  renderTable(alertDataset);
+</script>
+
+</body>
+</html>
